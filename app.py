@@ -7,7 +7,10 @@ import plotly.graph_objects as go
 st.set_page_config(page_title="Scientific Leadership Lab", page_icon="🧬", layout="wide")
 
 st.title("🧬 Identify Your Leadership Impostor")
-st.markdown("*Based on the Scientific Leadership Framework by Christian Sisti.*")
+st.markdown("""
+### Digital Assessment Tool
+*Developed by **Christian Sisti** | Based on the framework by **Dr. Valerie Young***
+""")
 
 # Definizioni esatte dal tuo spreadsheet
 definitions = {
