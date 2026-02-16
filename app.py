@@ -1,51 +1,68 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
+import plotly.graph_objects as go
 
 # Configurazione Pagina
-st.set_page_config(page_title="Scientific Leadership Lab", page_icon="🧬")
+st.set_config(page_title="Scientific Leadership Lab", page_icon="🧬", layout="wide")
 
-st.title("🧬 Leadership Impostor Assessment")
+st.title("🧬 Identify Your Leadership Impostor")
 st.markdown("""
-*Based on the Scientific Leadership Framework by Christian Sisti.* Identify which 'Impostor Voice' is loudest in your head today. 
-**Scale: 0 (Silence) to 3 (Loudest).**
+*Based on the Scientific Leadership Framework by Christian Sisti.* Discover which 'Impostor Voice' is influencing your leadership style today.
 """)
 
-# Sidebar per gli Input
-st.sidebar.header("Assess Your Noise Levels")
-perf = st.sidebar.select_slider("The Perfectionist", options=[0, 1, 2, 3])
-geni = st.sidebar.select_slider("The Natural Genius", options=[0, 1, 2, 3])
-expe = st.sidebar.select_slider("The Expert", options=[0, 1, 2, 3])
-solo = st.sidebar.select_slider("The Soloist", options=[0, 1, 2, 3])
-supe = st.sidebar.select_slider("The Superhuman", options=[0, 1, 2, 3])
-
-# Preparazione Dati
-data = {
-    'Type': ['Perfectionist', 'Natural Genius', 'Expert', 'Soloist', 'Superhuman'],
-    'Score': [perf, geni, expe, solo, supe],
-    'Definition': [
-        "I feel like a fraud if the project outcome isn't 100% flawless.",
-        "I feel I should have all the answers immediately without struggling.",
-        "I need 'one more certification' before I feel qualified to lead.",
-        "Asking for help feels like a sign of weakness to me.",
-        "I feel I must excel in every role (Director, parent, athlete) simultaneously."
-    ]
+# Definizioni dallo Spreadsheet
+definitions = {
+    "The Perfectionist": "I feel like a fraud if the project outcome isn't flawless. Even a 99% success rate feels like a failure because I focus on the 1% that went wrong.",
+    "The Natural Genius": "If I have to struggle or work hard to master a new leadership skill, I feel incompetent. I believe it should come to me effortlessly.",
+    "The Expert": "I'm terrified of being 'found out' if I don't have the answer to every technical question. I feel I need one more certification before I can lead.",
+    "The Soloist": "I believe that asking for help is a sign of weakness. If I didn't achieve the goal entirely on my own, I feel I don't deserve the credit.",
+    "The Superhuman": "I feel I must excel in every single role—Director, mentor, parent, athlete—simultaneously. If I fall short in one, I feel like a complete impostor."
 }
-df = pd.DataFrame(data)
 
-# Visualizzazione Grafico
-fig = px.bar(df, x='Type', y='Score', color='Score', 
-             color_continuous_scale='Reds', range_y=[0,3])
-st.plotly_chart(fig, use_container_width=True)
+# Layout a due colonne: Slider a sinistra, Grafico a destra
+col1, col2 = st.columns([1, 2])
 
-# Feedback Dinamico
-st.subheader("Your Leadership Insights")
-high_scores = df[df['Score'] >= 2]
+with col1:
+    st.header("Self-Assessment")
+    st.caption("Scale: 0 (Silence) to 3 (Loudest)")
+    
+    scores = []
+    categories = list(definitions.keys())
+    
+    for cat in categories:
+        score = st.select_slider(f"**{cat}**", options=[0, 1, 2, 3], key=cat)
+        st.caption(f"*{definitions[cat]}*") # Mostra la definizione sotto ogni slider
+        scores.append(score)
+        st.divider()
 
-if not high_scores.empty:
-    for index, row in high_scores.iterrows():
-        st.error(f"**{row['Type']}**: {row['Definition']}")
-else:
-    st.success("Your impostor noise levels are low! You are leading with high clarity today.")
+with col2:
+    st.header("Your Impostor Radar")
+    
+    # Logica Grafico Radar
+    # Per chiudere il cerchio del radar, dobbiamo ripetere il primo valore alla fine
+    radar_scores = scores + [scores[0]]
+    radar_categories = categories + [categories[0]]
+    
+    fig = go.Figure(data=go.Scatterpolar(
+        r=radar_scores,
+        theta=radar_categories,
+        fill='toself',
+        line=dict(color='#FF4B4B'),
+        marker=dict(size=8)
+    ))
 
-st.info("💡 **Coach Tip:** Use this data in your next 1:1 to build vulnerability and trust with your team.")
+    fig.update_layout(
+        polar=dict(
+            radialaxis=dict(visible=True, range=[0, 3])
+        ),
+        showlegend=False,
+        height=500
+    )
+    
+    st.plotly_chart(fig, use_container_width=True)
+
+    # Feedback di Leadership
+    max_score = max(scores)
+    if max_score >= 2:
+        st.warning("⚠️ **Coach Insight:** Some
