@@ -9,7 +9,7 @@ st.set_page_config(page_title="Scientific Leadership Lab", page_icon="🧬", lay
 st.title("🧬 Identify Your Leadership Impostor")
 st.markdown("""
 ### Digital Assessment Tool
-*Developed by **Christian Sisti** | Based on the framework by **Dr. Valerie Young***
+*Developed by **Christian Sisti** | Inspired by the framework by **Dr. Valerie Young***
 """)
 
 # Definizioni esatte dal tuo spreadsheet
